@@ -1,0 +1,92 @@
+
+create database CL3;
+USE CL3;
+
+CREATE TABLE Seguridad(
+IdUsuario varchar(15) not null,
+Contraseña char(8) not null,
+primary key(IdUsuario)
+);
+select*from Seguridad;
+create table Empleado(
+IdEmpleado char(8) not null,
+Apellidos varchar(15) not null,
+Nombres varchar(20) not null,
+Edad int,
+Sexo char(2),
+primary key(IdEmpleado),
+check(Sexo in('M','S'))
+);
+
+
+
+
+#Login
+-- SP : VerificarVendedor
+drop procedure if exists VerificarUsuario;
+delimiter @@
+create procedure VerificarUsuario(Usu char(8), Cla char(8))
+begin
+select * from Seguridad where IdUsuario=Usu and Contraseña=Cla;
+end @@
+delimiter ;
+
+
+#Empleado
+
+-- SP : GenerarCodigoProducto
+drop procedure if exists GenerarCodigo;
+delimiter @@
+create procedure GenerarCodigo()
+begin
+SELECT CONCAT("VEN",LPAD(CONVERT(CONVERT(RIGHT(IdEmpleado,4),SIGNED INTEGER)+1,CHAR),4,'0'))
+FROM Empleado ORDER BY 1 DESC LIMIT 0,1;
+end @@
+delimiter ;
+
+call GenerarCodigo();
+
+-- SP : ListarEmpleados
+drop procedure if exists ListarEmpleados;
+delimiter @@
+create procedure ListarEmpleados()
+begin
+select * from Empleado;
+end @@
+delimiter ;
+call ListarEmpleados();
+
+
+-- SP : InsertarEmpleado
+drop procedure if exists InsertarEmpleados;
+delimiter @@
+create procedure InsertarEmpleados(Id char(8),Ape varchar(60),Nom varchar(60),Eda int,sex char(5))
+begin
+insert into Empleado values(Id,Ape,Nom,Eda,sex);
+end @@
+delimiter ;
+call InsertarEmpleados('VEN001','SOTO','Ramirez', 25, 'M' );
+
+
+
+
+-- SP : ModificaEmpleado
+drop procedure if exists ModificaEmpleado;
+delimiter @@
+create procedure ModificaEmpleado(Id char(8),Ape varchar(60),Nom varchar(60),Eda int,sex char(5))
+begin
+update Empleado set Apellidos=Ape, Nombres=Nom,Edad=Eda,Sexo=sex  where IdEmpleado = Id;
+end @@
+delimiter ;
+call ModificaEmpleado('VEN001','SOTO','Ramirez Adre', 25, 'M' );
+
+
+-- SP : SuprimirEmpleado
+drop procedure if exists SuprimirEmpleado;
+delimiter @@
+create procedure SuprimirEmpleado(Id char(8))
+begin
+delete from Empleado where IdEmpleado = Id;
+end @@
+delimiter ;
+call SuprimirEmpleado('VEN001');
